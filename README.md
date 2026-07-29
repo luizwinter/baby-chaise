@@ -82,6 +82,32 @@ a URL do passo anterior. Imprima ou mostre na tela do evento.
 - Para não conflitar com os jogadores, acesse o painel admin só na
   hora da revelação (ou use o celular do anfitrião separadamente).
 
+## 6. Novidades da v2 (tutorial, backgrounds, boliche e serra)
+
+Essa versão adiciona:
+- Tela de tutorial antes de cada fase (ícone + frase objetiva).
+- Backgrounds temáticos nas 7 fases de jogo.
+- Boliche: personagem da vez (Karina/Junior) no canto da tela, e a
+  Bárbara aparecendo com a câmera no lugar do flash genérico.
+- Serra: o carro (Sandero) agora se move de verdade sobre uma estrada
+  com scroll, fazendo curvas ao acertar as setas.
+
+Pra ativar tudo isso, suba os 12 arquivos da pasta
+`assets_novos_v2/` (ou o `assets_novos_v2.zip`) dentro da mesma pasta
+`assets/` já existente no seu repositório — são só arquivos novos,
+não substituem nenhum dos 22 anteriores. Depois, substitua `game.js`,
+`index.html` e `style.css` pelos desta entrega.
+
+Arquivos novos que vão para dentro de `assets/`:
+```
+bg_fase1_ipnet.jpg       bg_fase5_salao.jpg
+bg_fase2_instagram.jpg   bg_fase6_boliche.jpg
+bg_fase3_standtiro.jpg   bg_fase7_serra.jpg
+bg_fase4_rodovia.jpg     estrada_serra_completa.jpg
+boliche_karina.png       boliche_barbara_foto.png
+boliche_junior.png       carro_sandero.png
+```
+
 ## Estrutura de arquivos
 
 ```
