@@ -1,4 +1,4 @@
-# A Aventura do Baby Chá - Karina & Junior
+# A Aventura do Chá de Babê - Karina & Junior
 
 Jogo web estilo 16-bit para o chá de bebê. Roda em qualquer navegador de
 celular, sem instalar nada. Registro com nome + foto, 8 fases contando a
