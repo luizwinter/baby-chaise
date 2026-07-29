@@ -140,6 +140,16 @@ img, canvas{ image-rendering: pixelated; image-rendering: crisp-edges; }
 .dialog-title{ font-size:14px; color: var(--pink); margin-bottom:10px; line-height:1.5; }
 .dialog-text{ font-size:20px; color: var(--cream); line-height:1.35; }
 
+/* ---------- TUTORIAL SCREEN ---------- */
+#screen-tutorial{ position:relative; overflow:hidden; }
+.tutorial-bg{
+  position:absolute; inset:0; z-index:0;
+  background-size:cover; background-position:center;
+  filter: brightness(0.4) saturate(0.85);
+}
+.tutorial-panel{ position:relative; z-index:1; }
+.tutorial-icon{ font-size:52px; margin: 4px 0 16px; }
+
 /* ---------- GAME SCREEN ---------- */
 #screen-game{ padding:0; }
 .hud{
