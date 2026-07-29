@@ -123,6 +123,7 @@
 <div id="screen-admin" class="screen">
   <div class="panel wide">
     <h2 class="pixel-title small">PAINEL DO ANFITRIÃO</h2>
+    <p class="hint-text warning-text" id="admin-config-warning" style="display:none;"></p>
     <p class="body-text">Defina o sexo real do bebê para revelar os acertos:</p>
     <div class="choice-row">
       <button class="choice-card boy" id="admin-set-boy">
@@ -134,6 +135,12 @@
     </div>
     <p class="hint-text" id="admin-status"></p>
     <button id="admin-view-rank" class="btn-primary">ABRIR RANKING</button>
+
+    <div class="admin-danger-zone">
+      <p class="hint-text">Zona de risco — use somente em testes:</p>
+      <button id="admin-clear-db" class="btn-danger">🗑️ APAGAR TODOS OS DADOS DO RANKING</button>
+      <p class="hint-text" id="admin-clear-status"></p>
+    </div>
   </div>
 </div>
 
