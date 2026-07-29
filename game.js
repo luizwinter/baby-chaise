@@ -1097,10 +1097,14 @@ function finishGame(){
     guess: player.guess,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   }).then(()=>{
-    statusEl.textContent = 'Pontuação registrada no ranking!';
+    statusEl.textContent = '✔ Pontuação registrada no ranking!';
+    statusEl.style.color = '#4ecdc4';
     viewBtn.style.display = 'inline-block';
   }).catch((err)=>{
-    statusEl.textContent = 'Não foi possível enviar (erro: ' + err.message + ')';
+    console.error('Erro ao salvar no Firestore:', err);
+    statusEl.textContent = '⚠ Não foi possível salvar sua pontuação (erro: ' + err.message + '). Avise o anfitrião.';
+    statusEl.style.color = '#ff6b9d';
+    statusEl.style.fontWeight = 'bold';
     viewBtn.style.display = 'inline-block';
   });
 }
@@ -1154,6 +1158,43 @@ function initAdmin(){
   document.getElementById('admin-set-boy').addEventListener('click', ()=> setReveal('Timothy'));
   document.getElementById('admin-set-girl').addEventListener('click', ()=> setReveal('Luna'));
   document.getElementById('admin-view-rank').addEventListener('click', openLeaderboard);
+  document.getElementById('admin-clear-db').addEventListener('click', clearDatabase);
+  checkFirebaseConfig();
+}
+
+// alerta o anfitrião se o firebase-config.js ainda estiver com as chaves de exemplo
+// (nesse caso, nada será salvo no ranking até as chaves reais serem coladas)
+function checkFirebaseConfig(){
+  const warn = document.getElementById('admin-config-warning');
+  if (!warn) return;
+  const cfg = (typeof firebaseConfig !== 'undefined') ? firebaseConfig : null;
+  const isPlaceholder = !cfg || cfg.apiKey === 'SUA_API_KEY_AQUI' || cfg.projectId === 'SEU_PROJETO';
+  if (isPlaceholder){
+    warn.style.display = 'block';
+    warn.textContent = '⚠ O firebase-config.js ainda está com as chaves de exemplo. Nenhuma pontuação será salva até você colar as chaves reais do seu projeto Firebase e ajustar as regras do Firestore.';
+  }
+}
+
+function clearDatabase(){
+  const status = document.getElementById('admin-clear-status');
+  const confirmed = window.confirm('Isso vai apagar TODAS as pontuações salvas no ranking. Essa ação não pode ser desfeita. Deseja continuar?');
+  if (!confirmed) return;
+  status.textContent = 'Apagando...';
+  db.collection('players').get().then(snap=>{
+    if (snap.empty){
+      status.textContent = 'O ranking já está vazio, nada para apagar.';
+      return;
+    }
+    const batch = db.batch();
+    let count = 0;
+    snap.forEach(doc=>{ batch.delete(doc.ref); count++; });
+    return batch.commit().then(()=>{
+      status.textContent = '✔ ' + count + ' registro(s) apagado(s) com sucesso!';
+    });
+  }).catch(err=>{
+    console.error('Erro ao apagar ranking:', err);
+    status.textContent = '⚠ Erro ao apagar: ' + err.message;
+  });
 }
 
 function setReveal(gender){
