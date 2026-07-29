@@ -68,6 +68,78 @@ function addScore(n){
   document.getElementById('hud-score').textContent = player.score;
 }
 
+/* ---------------- IMAGENS (assets/) ---------------- */
+const ASSET_PATHS = {
+  icon_camisa: 'assets/icon_camisa.png',
+  icon_billy: 'assets/icon_billy.png',
+  icon_moto: 'assets/icon_moto.png',
+  icon_alvo: 'assets/icon_alvo.png',
+  icon_salao: 'assets/icon_salao.png',
+  icon_coracao: 'assets/icon_coracao.png',
+  sprite_alvo: 'assets/sprite_alvo.png',
+  sprite_billy: 'assets/sprite_billy.png',
+  sprite_moto: 'assets/sprite_moto.png',
+  top_moto: 'assets/top_moto.png',
+  top_buraco: 'assets/top_buraco.png',
+  top_billy: 'assets/top_billy.png',
+  top_rato_branco: 'assets/top_rato_branco.png',
+  top_rato_cinza: 'assets/top_rato_cinza.png',
+  top_dinheiro: 'assets/top_dinheiro.png',
+  top_gasolina: 'assets/top_gasolina.png',
+  sprite_cliente: 'assets/sprite_cliente.png',
+  sprite_barbara: 'assets/sprite_barbara.png',
+  sprite_arao: 'assets/sprite_arao.png',
+  cena_carro: 'assets/cena_carro.png',
+  cena_castelo: 'assets/cena_castelo.png',
+  cena_anel: 'assets/cena_anel.png',
+  cena_cerejeira: 'assets/cena_cerejeira.png',
+  cena_casal_beijo: 'assets/cena_casal_beijo.png'
+};
+const IMAGES = {};
+function preloadImages(){
+  Object.keys(ASSET_PATHS).forEach(key=>{
+    const img = new Image();
+    img.src = ASSET_PATHS[key];
+    IMAGES[key] = img;
+  });
+}
+preloadImages();
+
+// desenha uma imagem (sprite quadrado) centralizada em cx,cy com o tamanho "size"
+function drawSprite(key, cx, cy, size){
+  const img = IMAGES[key];
+  if (img && img.complete && img.naturalWidth){
+    ctx.drawImage(img, cx - size/2, cy - size/2, size, size);
+  }
+}
+
+// desenha uma imagem "cobrindo" todo o canvas (como background-size:cover)
+function drawCover(img, cw, ch){
+  const ir = img.width / img.height, cr = cw / ch;
+  let sw, sh, sx, sy;
+  if (ir > cr){ sh = img.height; sw = sh*cr; sx = (img.width-sw)/2; sy = 0; }
+  else { sw = img.width; sh = sw/cr; sx = 0; sy = (img.height-sh)/2; }
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+}
+
+// desenha uma cena de fundo em tela cheia + legenda na base (usado na cutscene da Fase 7)
+function drawSceneImage(key, caption){
+  const img = IMAGES[key];
+  if (img && img.complete && img.naturalWidth){
+    drawCover(img, canvas.width, canvas.height);
+  } else {
+    clearBg('#1a1a2e');
+  }
+  ctx.fillStyle = 'rgba(15,15,30,0.75)';
+  ctx.fillRect(0, canvas.height-70, canvas.width, 70);
+  ctx.font = '14px "Press Start 2P", monospace';
+  ctx.fillStyle = '#ffd460';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(caption, canvas.width/2, canvas.height-35);
+  ctx.textBaseline = 'alphabetic';
+}
+
 /* ============================================================
    FASE 1 - IPNET: QUEM FAZIA O QUE
    ============================================================ */
@@ -181,12 +253,12 @@ function runPhase1(done){
    FASE 2 - INSTAGRAM: MEMORY MATCH
    ============================================================ */
 const MEMORY_ICONS = [
-  {icon:'👕', story:'Foi essa foto da camisa marrom que fez o Junior comentar!'},
-  {icon:'🐶', story:'Billy, o companheiro fiel da Karina, vai pra todo lugar com ela.'},
-  {icon:'🏍️', story:'A Harley preta do Junior - paixão de duas rodas.'},
-  {icon:'🎯', story:'O primeiro encontro foi em um stand de tiro esportivo!'},
-  {icon:'💇‍♀️', story:'Karina trabalha no salão cuidando de tudo na recepção.'},
-  {icon:'❤️', story:'E assim começou uma história de amor.'}
+  {key:'icon_camisa', story:'Foi essa foto da camisa marrom que fez o Junior comentar!'},
+  {key:'icon_billy', story:'Billy, o companheiro fiel da Karina, vai pra todo lugar com ela.'},
+  {key:'icon_moto', story:'A Harley preta do Junior - paixão de duas rodas.'},
+  {key:'icon_alvo', story:'O primeiro encontro foi em um stand de tiro esportivo!'},
+  {key:'icon_salao', story:'Karina trabalha no salão cuidando de tudo na recepção.'},
+  {key:'icon_coracao', story:'E assim começou uma história de amor.'}
 ];
 
 function runPhase2(done){
@@ -214,10 +286,7 @@ function runPhase2(done){
       ctx.lineWidth = 3;
       ctx.stroke();
       if (c.flipped || c.matched){
-        ctx.font = (c.w*0.5) + 'px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(c.icon, c.x + c.w/2, c.y + c.h/2);
+        drawSprite(c.key, c.x + c.w/2, c.y + c.h/2, Math.min(c.w, c.h)*0.8);
       } else {
         ctx.fillStyle = '#ffd460';
         ctx.font = '20px "Press Start 2P", monospace';
@@ -250,10 +319,10 @@ function runPhase2(done){
           lock = true;
           setTimeout(()=>{
             const [a,b] = selected;
-            if (a.icon === b.icon){
+            if (a.key === b.key){
               a.matched = b.matched = true;
               addScore(15);
-              storyMsg = MEMORY_ICONS.find(m=>m.icon===a.icon).story;
+              storyMsg = MEMORY_ICONS.find(m=>m.key===a.key).story;
               storyTimer = 2600;
             } else {
               a.flipped = b.flipped = false;
@@ -308,10 +377,8 @@ function runPhase3(done){
     if (!target && spawnTimer <= 0){ spawnTarget(); spawnTimer = 300; }
     if (target){
       target.life -= dt;
-      const emoji = target.type === 'target' ? '🎯' : (target.type === 'billy' ? '🐕' : '🏍️');
-      ctx.font = '48px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(emoji, target.x, target.y);
+      const key = target.type === 'target' ? 'sprite_alvo' : (target.type === 'billy' ? 'sprite_billy' : 'sprite_moto');
+      drawSprite(key, target.x, target.y, 76);
       if (target.life <= 0) target = null;
     }
 
@@ -384,7 +451,7 @@ function runPhase4(done){
     items.push({ type, lane: Math.floor(Math.random()*lanes), y: -60 });
   }
 
-  const EMOJI = { buraco:'🕳️', billy:'🐕', rato_branco:'🐭', rato_cinza:'🐁', dinheiro:'💵', gasolina:'⛽' };
+  const IMG_KEY = { buraco:'top_buraco', billy:'top_billy', rato_branco:'top_rato_branco', rato_cinza:'top_rato_cinza', dinheiro:'top_dinheiro', gasolina:'top_gasolina' };
 
   let last = performance.now(), raf;
   function loop(now){
@@ -412,9 +479,7 @@ function runPhase4(done){
     items = items.filter(it=>{
       if (it.y > canvas.height + 60) return false;
       const cx = laneW()*it.lane + laneW()/2;
-      ctx.font = '38px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(EMOJI[it.type], cx, it.y);
+      drawSprite(IMG_KEY[it.type], cx, it.y, 58);
       const bikeY = canvas.height - 90;
       if (it.lane === bikeLane && Math.abs(it.y - bikeY) < 40){
         if (it.type === 'dinheiro'){ addScore(10); return false; }
@@ -430,9 +495,7 @@ function runPhase4(done){
     const bikeY = canvas.height - 90;
     ctx.save();
     if (flashTimer > 0){ ctx.globalAlpha = 0.5 + 0.5*Math.sin(now*0.05); flashTimer -= dt; }
-    ctx.font = '52px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🏍️', bikeCx, bikeY);
+    drawSprite('top_moto', bikeCx, bikeY, 78);
     ctx.restore();
 
     ctx.fillStyle = '#ffd460';
@@ -486,10 +549,8 @@ function runPhase5(done){
 
     slots = slots.filter(s=>{
       s.patience -= dt;
-      const emoji = s.type === 'cliente' ? '💇‍♀️' : (s.type === 'barbara' ? '😏' : '👨');
-      ctx.font = '44px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(emoji, s.x, s.y);
+      const key = s.type === 'cliente' ? 'sprite_cliente' : (s.type === 'barbara' ? 'sprite_barbara' : 'sprite_arao');
+      drawSprite(key, s.x, s.y, 68);
       const pct = Math.max(0, s.patience/s.max);
       ctx.fillStyle = '#0f0f1e';
       ctx.fillRect(s.x-30, s.y+28, 60, 6);
@@ -729,26 +790,17 @@ function runPhase7(done){
   }
 
   const CUTSCENE_STEPS = [
-    { dur:1200, draw:()=>{ drawScene('🏰','🚗 chega ao castelo...'); }},
-    { dur:1400, draw:()=>{ drawScene('🏰','🚶‍♂️🚶‍♀️ saindo do carro...'); }},
-    { dur:1600, draw:()=>{ drawScene('🏰','💍 Junior se ajoelha...'); }},
-    { dur:1800, draw:()=>{ drawScene('🏰💍','ELA DISSE SIM!'); }},
-    { dur:2000, draw:()=>{ drawScene('🌸💏','Felizes para sempre.'); }}
+    { dur:1600, key:'cena_carro', caption:'Chegando ao castelo...' },
+    { dur:1800, key:'cena_castelo', caption:'Saindo do carro...' },
+    { dur:2000, key:'cena_anel', caption:'Junior se ajoelha...' },
+    { dur:2200, key:'cena_cerejeira', caption:'ELA DISSE SIM!' },
+    { dur:2400, key:'cena_casal_beijo', caption:'Felizes para sempre.' }
   ];
-  function drawScene(emoji, caption){
-    clearBg('#1a1a2e');
-    ctx.font = '64px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(emoji, canvas.width/2, canvas.height/2 - 30);
-    ctx.font = '16px "Press Start 2P", monospace';
-    ctx.fillStyle = '#ffd460';
-    ctx.fillText(caption, canvas.width/2, canvas.height/2 + 60);
-  }
 
   function drawCutscene(dt){
     cutsceneTimer += dt;
     const step = CUTSCENE_STEPS[cutsceneStep];
-    step.draw();
+    drawSceneImage(step.key, step.caption);
     if (cutsceneTimer >= step.dur){
       cutsceneTimer = 0;
       cutsceneStep++;
