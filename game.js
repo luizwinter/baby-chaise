@@ -93,7 +93,19 @@ const ASSET_PATHS = {
   cena_castelo: 'assets/cena_castelo.png',
   cena_anel: 'assets/cena_anel.png',
   cena_cerejeira: 'assets/cena_cerejeira.png',
-  cena_casal_beijo: 'assets/cena_casal_beijo.png'
+  cena_casal_beijo: 'assets/cena_casal_beijo.png',
+  bg_fase1_ipnet: 'assets/bg_fase1_ipnet.jpg',
+  bg_fase2_instagram: 'assets/bg_fase2_instagram.jpg',
+  bg_fase3_standtiro: 'assets/bg_fase3_standtiro.jpg',
+  bg_fase4_rodovia: 'assets/bg_fase4_rodovia.jpg',
+  bg_fase5_salao: 'assets/bg_fase5_salao.jpg',
+  bg_fase6_boliche: 'assets/bg_fase6_boliche.jpg',
+  bg_fase7_serra: 'assets/bg_fase7_serra.jpg',
+  estrada_serra_completa: 'assets/estrada_serra_completa.jpg',
+  boliche_karina: 'assets/boliche_karina.png',
+  boliche_junior: 'assets/boliche_junior.png',
+  boliche_barbara_foto: 'assets/boliche_barbara_foto.png',
+  carro_sandero: 'assets/carro_sandero.png'
 };
 const IMAGES = {};
 function preloadImages(){
@@ -113,6 +125,24 @@ function drawSprite(key, cx, cy, size){
   }
 }
 
+// desenha um sprite preservando proporção, ancorado pela base (cx = centro horizontal, bottomY = base)
+function drawSpriteBottom(key, cx, bottomY, height){
+  const img = IMAGES[key];
+  if (img && img.complete && img.naturalWidth){
+    const w = height * (img.width / img.height);
+    ctx.drawImage(img, cx - w/2, bottomY - height, w, height);
+  }
+}
+
+// desenha um sprite preservando proporção, ancorado pelo canto superior direito
+function drawSpriteTopRight(key, rightX, topY, height){
+  const img = IMAGES[key];
+  if (img && img.complete && img.naturalWidth){
+    const w = height * (img.width / img.height);
+    ctx.drawImage(img, rightX - w, topY, w, height);
+  }
+}
+
 // desenha uma imagem "cobrindo" todo o canvas (como background-size:cover)
 function drawCover(img, cw, ch){
   const ir = img.width / img.height, cr = cw / ch;
@@ -120,6 +150,18 @@ function drawCover(img, cw, ch){
   if (ir > cr){ sh = img.height; sw = sh*cr; sx = (img.width-sw)/2; sy = 0; }
   else { sw = img.width; sh = sw/cr; sx = 0; sy = (img.height-sh)/2; }
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+}
+
+// desenha o background de uma fase cobrindo o canvas, com leve escurecido para legibilidade
+function drawBg(key, fallbackColor, dim){
+  const img = IMAGES[key];
+  if (img && img.complete && img.naturalWidth){
+    drawCover(img, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(8,8,18,' + (dim != null ? dim : 0.4) + ')';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  } else {
+    clearBg(fallbackColor);
+  }
 }
 
 // desenha uma cena de fundo em tela cheia + legenda na base (usado na cutscene da Fase 7)
@@ -184,7 +226,7 @@ function runPhase1(done){
   function loop(now){
     const dt = now - last; last = now;
     roundTimer -= dt;
-    clearBg('#10101f');
+    drawBg('bg_fase1_ipnet', '#10101f');
     badges.forEach(b=>{
       if (!b.alive) return;
       b.bob += dt*0.003;
@@ -277,7 +319,7 @@ function runPhase2(done){
   let storyMsg = '', storyTimer = 0;
 
   function draw(){
-    clearBg('#10101f');
+    drawBg('bg_fase2_instagram', '#10101f', 0.55);
     grid.forEach(c=>{
       ctx.fillStyle = c.matched ? '#1e3a2e' : '#2a2a45';
       roundRect(ctx, c.x, c.y, c.w, c.h, 8);
@@ -372,7 +414,7 @@ function runPhase3(done){
     const dt = now - last; last = now;
     timeLeft -= dt;
     spawnTimer -= dt;
-    clearBg('#0d1420');
+    drawBg('bg_fase3_standtiro', '#0d1420', 0.25);
 
     if (!target && spawnTimer <= 0){ spawnTarget(); spawnTimer = 300; }
     if (target){
@@ -458,7 +500,7 @@ function runPhase4(done){
     const dt = now - last; last = now;
     timeLeft -= dt;
     spawnTimer -= dt;
-    clearBg('#2b2b2b');
+    drawBg('bg_fase4_rodovia', '#2b2b2b', 0.3);
 
     // pista
     ctx.strokeStyle = '#f4f1de';
@@ -543,7 +585,7 @@ function runPhase5(done){
     const dt = now - last; last = now;
     timeLeft -= dt;
     spawnTimer -= dt;
-    clearBg('#241a2e');
+    drawBg('bg_fase5_salao', '#241a2e', 0.3);
 
     if (spawnTimer <= 0 && slots.length < 3){ spawn(); spawnTimer = 900; }
 
@@ -615,6 +657,7 @@ function runPhase6(done){
   let flash = 0, flashTimer = 0;
 
   function currentPlayer(){ return throwIdx % 2 === 0 ? 'Karina' : 'Junior'; }
+  function currentPlayerKey(){ return throwIdx % 2 === 0 ? 'boliche_karina' : 'boliche_junior'; }
   function isEasy(kind){
     const p = currentPlayer();
     if (kind === 'direction') return p === 'Karina';
@@ -624,7 +667,10 @@ function runPhase6(done){
   let last = performance.now(), raf;
   function loop(now){
     const dt = now - last; last = now;
-    clearBg('#1a1a2e');
+    drawBg('bg_fase6_boliche', '#1a1a2e', 0.2);
+
+    // personagem da vez (Karina ou Junior), de costas, num canto - não cobre as barras
+    drawSpriteBottom(currentPlayerKey(), 76, canvas.height - 6, Math.min(150, canvas.height*0.26));
 
     ctx.fillStyle = '#ffd460';
     ctx.font = '12px "Press Start 2P", monospace';
@@ -633,7 +679,9 @@ function runPhase6(done){
 
     if (flashTimer > 0){
       flashTimer -= dt;
-      ctx.fillStyle = 'rgba(255,255,255,' + (flashTimer/600*0.85) + ')';
+      // Bárbara aparece no canto tirando foto pra atrapalhar, com um leve clarão de flash
+      drawSpriteTopRight('boliche_barbara_foto', canvas.width - 6, 54, Math.min(140, canvas.height*0.24));
+      ctx.fillStyle = 'rgba(255,255,255,' + (Math.max(0,flashTimer)/600*0.4) + ')';
       ctx.fillRect(0,0,canvas.width,canvas.height);
     }
 
@@ -733,6 +781,7 @@ function runPhase7(done){
   let feedback = null;
   let phase = 'climb'; // climb -> cutscene
   let cutsceneStep = 0, cutsceneTimer = 0;
+  let steerOffset = 0, steerTarget = 0; // deslocamento lateral do carro (efeito de curva)
 
   const btnSize = 64;
   function buttons(){
@@ -750,33 +799,59 @@ function runPhase7(done){
 
   let last = performance.now(), raf;
   function drawClimb(dt){
-    clearBg('#1a1a2e');
-    ctx.fillStyle = '#0f0f1e';
-    ctx.fillRect(30, 40, canvas.width-60, 14);
-    ctx.fillStyle = '#4ecdc4';
-    ctx.fillRect(30, 40, (canvas.width-60)*progress, 14);
+    // estrada rolando verticalmente: progress=0 mostra o pé da serra, progress=1 mostra o topo
+    const roadImg = IMAGES['estrada_serra_completa'];
+    if (roadImg && roadImg.complete && roadImg.naturalWidth){
+      const scale = canvas.width / roadImg.width;
+      const viewH = canvas.height / scale;
+      const maxScrollY = Math.max(0, roadImg.height - viewH);
+      const scrollY = maxScrollY * (1 - progress);
+      ctx.drawImage(roadImg, 0, scrollY, roadImg.width, viewH, 0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(8,8,18,0.12)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+    } else {
+      clearBg('#1a1a2e');
+    }
 
-    ctx.font = '48px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🚗', 30 + (canvas.width-60)*progress, 90);
+    ctx.fillStyle = 'rgba(15,15,30,0.8)';
+    ctx.fillRect(20, 16, canvas.width-40, 10);
+    ctx.fillStyle = '#4ecdc4';
+    ctx.fillRect(20, 16, (canvas.width-40)*progress, 10);
+
+    // carro: desliza lateralmente e inclina levemente, dando impressão real de curva
+    steerOffset += (steerTarget - steerOffset) * Math.min(1, dt*0.006);
+    const carH = Math.min(150, canvas.height*0.22);
+    const carY = canvas.height*0.66;
+    const carImg = IMAGES['carro_sandero'];
+    ctx.save();
+    ctx.translate(canvas.width/2 + steerOffset, carY);
+    ctx.rotate(steerOffset*0.0035);
+    if (carImg && carImg.complete && carImg.naturalWidth){
+      const w = carH * (carImg.width/carImg.height);
+      ctx.drawImage(carImg, -w/2, -carH/2, w, carH);
+    }
+    ctx.restore();
 
     const need = seq[idx];
     const btns = buttons();
+    ctx.textAlign='center'; ctx.textBaseline='middle';
     Object.values(btns).forEach(b=>{
-      ctx.fillStyle = (b.key === need) ? '#ffd460' : '#2a2a45';
+      ctx.fillStyle = (b.key === need) ? 'rgba(255,212,96,0.92)' : 'rgba(20,20,35,0.55)';
       roundRect(ctx, b.x, b.y, b.w, b.h, 10);
       ctx.fill();
-      ctx.strokeStyle = '#6c5b9e';
+      ctx.strokeStyle = '#f4f1de';
       ctx.lineWidth = 3; ctx.stroke();
       ctx.fillStyle = (b.key===need) ? '#1a1a2e' : '#f4f1de';
       ctx.font = '28px sans-serif';
       ctx.fillText(b.icon, b.x+b.w/2, b.y+b.h/2);
     });
+    ctx.textBaseline = 'alphabetic';
 
     promptTimer -= dt;
     if (feedback){
       ctx.fillStyle = feedback.ok ? '#4ecdc4' : '#ff6b9d';
       ctx.font = '16px VT323, monospace';
+      ctx.textAlign='center';
       ctx.fillText(feedback.ok ? 'Isso aí!' : 'Escorregou!', canvas.width/2, canvas.height-160);
     }
 
@@ -832,6 +907,8 @@ function runPhase7(done){
           progress = Math.min(1, progress + 1/SEQ_LEN);
           addScore(6);
           feedback = {ok:true};
+          steerTarget = b.key === 'left' ? -46 : (b.key === 'right' ? 46 : 0);
+          setTimeout(()=>{ steerTarget = 0; }, 480);
         } else {
           addScore(-2);
           feedback = {ok:false};
@@ -871,25 +948,32 @@ function runPhase8(done){
 const PHASES = [
   { label:'FASE 1', title:'IPNET - Cruzando Caminhos', portrait:'🏢',
     text:'Karina e Junior trabalhavam na mesma empresa, mas nunca trocaram uma palavra. Você lembra o que cada um fazia lá?',
-    run: runPhase1 },
+    tutorialIcon:'🏢', tutorialText:'Toque nos 2 crachás com o cargo certo de Karina e Junior antes que o tempo da rodada acabe!',
+    bg:'bg_fase1_ipnet', run: runPhase1 },
   { label:'FASE 2', title:'Instagram - A Camisa Marrom', portrait:'📱',
     text:'Foi uma foto de uma blusa marrom social que fez os dois começarem a se falar de verdade.',
-    run: runPhase2 },
+    tutorialIcon:'🃏', tutorialText:'Vire as cartas e encontre os pares iguais.',
+    bg:'bg_fase2_instagram', run: runPhase2 },
   { label:'FASE 3', title:'Stand de Tiro - Primeiro Encontro', portrait:'🎯',
     text:'O primeiro encontro do casal foi em um stand de tiro esportivo!',
-    run: runPhase3 },
+    tutorialIcon:'🎯', tutorialText:'Toque nos alvos que aparecem. Não toque no Billy nem na moto!',
+    bg:'bg_fase3_standtiro', run: runPhase3 },
   { label:'FASE 4', title:'Uma Volta de Harley', portrait:'🏍️',
     text:'Junior ama viajar de moto pela cidade, e Karina é a melhor companheira de garupa.',
-    run: runPhase4 },
+    tutorialIcon:'🏍️', tutorialText:'Toque na esquerda ou direita da tela para trocar de faixa. Desvie dos perigos e pegue dinheiro e gasolina!',
+    bg:'bg_fase4_rodovia', run: runPhase4 },
   { label:'FASE 5', title:'Salão de Beleza - Dia Corrido', portrait:'💇‍♀️',
     text:'Karina cuida de tudo na recepção do salão... mas a prima Bárbara sempre aparece pra atrapalhar!',
-    run: runPhase5 },
+    tutorialIcon:'💇', tutorialText:'Toque nos clientes antes que a paciência deles acabe. Cuidado com a Bárbara!',
+    bg:'bg_fase5_salao', run: runPhase5 },
   { label:'FASE 6', title:'Boliche - Aniversário de Namoro', portrait:'🎳',
     text:'Eles comemoraram o aniversário de namoro jogando boliche. Sua vez de jogar por eles!',
-    run: runPhase6 },
+    tutorialIcon:'🎳', tutorialText:'Toque para travar a direção, toque de novo para travar a força. Quanto mais perto do centro, mais pinos caem!',
+    bg:'bg_fase6_boliche', run: runPhase6 },
   { label:'FASE 7', title:'O Pedido de Casamento', portrait:'💍',
     text:'Junior levou Karina até a Serra de Petrópolis para um pedido inesquecível.',
-    run: runPhase7 },
+    tutorialIcon:'🚗', tutorialText:'Toque a seta certa na hora certa para subir a serra sem escorregar!',
+    bg:'bg_fase7_serra', run: runPhase7 },
   { label:'FASE 8', title:'O Que Vai Nascer Desse Amor?', portrait:'👶',
     text:'Agora você conhece um pouco do amor de Karina e Junior... mas há uma pergunta que só o tempo pode responder.',
     run: runPhase8 }
@@ -911,6 +995,20 @@ document.getElementById('btn-story-continue').addEventListener('click', ()=>{
     p.run(onPhaseComplete);
     return;
   }
+  showTutorial(p);
+});
+
+function showTutorial(p){
+  document.getElementById('tutorial-phase-label').textContent = p.label;
+  document.getElementById('tutorial-icon').textContent = p.tutorialIcon || '🎮';
+  document.getElementById('tutorial-text').textContent = p.tutorialText || '';
+  const bgEl = document.getElementById('tutorial-bg');
+  bgEl.style.backgroundImage = p.bg ? ('url(' + ASSET_PATHS[p.bg] + ')') : 'none';
+  showScreen('screen-tutorial');
+}
+
+document.getElementById('btn-tutorial-continue').addEventListener('click', ()=>{
+  const p = PHASES[phaseIndex];
   showScreen('screen-game');
   resizeCanvas();
   updateHud();
