@@ -1,0 +1,192 @@
+:root{
+  --navy: #1a1a2e;
+  --navy-deep: #0f0f1e;
+  --purple: #4a3f6b;
+  --purple-light: #6c5b9e;
+  --gold: #ffd460;
+  --pink: #ff6b9d;
+  --cyan: #4ecdc4;
+  --cream: #f4f1de;
+  --danger: #e63946;
+}
+
+*{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body{
+  margin:0; padding:0; height:100%; overflow:hidden;
+  background: var(--navy-deep);
+  font-family: 'VT323', monospace;
+  color: var(--cream);
+  user-select: none;
+}
+
+.pixel-title, .dialog-title, .boot-title, .boot-logo, .choice-name, .result-score-label, .hud-item, .dialog-phase-label{
+  font-family: 'Press Start 2P', monospace;
+}
+
+img, canvas{ image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* ---------- SCREEN MANAGEMENT ---------- */
+.screen{
+  position:fixed; inset:0; display:none;
+  flex-direction:column; align-items:center; justify-content:center;
+  background: var(--navy-deep);
+  padding: 16px;
+}
+.screen.active{ display:flex; }
+
+/* pixel-border helper (fake chunky pixel frame using layered box-shadow steps) */
+.pixel-border{
+  border: 4px solid var(--gold);
+  box-shadow:
+    0 0 0 4px var(--navy-deep),
+    0 0 0 8px var(--gold);
+}
+
+/* ---------- BOOT SCREEN ---------- */
+#screen-boot{
+  background: radial-gradient(ellipse at center, var(--navy) 0%, var(--navy-deep) 70%);
+}
+.boot-wrap{ text-align:center; }
+.boot-logo{
+  font-size: 48px; color: var(--gold); text-shadow: 4px 4px 0 var(--purple);
+  margin-bottom: 24px;
+}
+.boot-title{
+  font-size: 20px; line-height: 1.8; color: var(--cream);
+  text-shadow: 3px 3px 0 var(--pink);
+  margin-bottom: 40px;
+}
+.boot-blink{
+  font-family: 'VT323', monospace; font-size: 28px; color: var(--cyan);
+  animation: blink 1s step-start infinite;
+}
+.boot-foot{
+  margin-top: 60px; font-size: 16px; color: var(--purple-light);
+}
+@keyframes blink{ 50%{ opacity: 0; } }
+
+/* ---------- PANEL (generic card) ---------- */
+.panel{
+  width: 100%; max-width: 420px;
+  background: var(--navy);
+  border: 4px solid var(--gold);
+  box-shadow: 0 0 0 4px var(--navy-deep), 0 0 0 8px var(--gold), 8px 8px 0 rgba(0,0,0,0.4);
+  padding: 24px 20px;
+  text-align:center;
+}
+.panel.wide{ max-width: 480px; }
+
+.pixel-title{
+  font-size: 16px; color: var(--gold); margin: 0 0 16px; line-height:1.6;
+}
+.pixel-title.small{ font-size: 14px; }
+.body-text{ font-size: 20px; color: var(--cream); margin: 0 0 20px; line-height:1.4; }
+.hint-text{ font-size: 16px; color: var(--purple-light); margin-top: 14px; }
+.field-label{ display:block; text-align:left; font-size:16px; color: var(--cyan); margin: 12px 0 6px; }
+
+.pixel-input{
+  width:100%; font-family:'VT323',monospace; font-size:22px; padding:10px 12px;
+  background: var(--navy-deep); color: var(--cream); border: 3px solid var(--purple-light);
+  outline:none;
+}
+.pixel-input:focus{ border-color: var(--gold); }
+
+.photo-row{ display:flex; align-items:center; gap:12px; margin-top:6px; }
+.photo-preview{
+  width:56px; height:56px; flex-shrink:0; background:var(--navy-deep);
+  border:3px solid var(--purple-light); display:flex; align-items:center; justify-content:center;
+  font-size:24px; overflow:hidden;
+}
+.photo-preview img{ width:100%; height:100%; object-fit:cover; }
+
+.btn-primary, .btn-secondary{
+  display:inline-block; width:100%; margin-top:20px;
+  font-family:'Press Start 2P', monospace; font-size:13px; letter-spacing:1px;
+  padding:16px 10px; cursor:pointer; border:none; text-align:center;
+}
+.btn-primary{
+  background: var(--gold); color: var(--navy-deep);
+  box-shadow: 0 5px 0 #b8860b, 0 5px 0 4px var(--navy-deep);
+}
+.btn-primary:active{ transform: translateY(4px); box-shadow: 0 1px 0 #b8860b; }
+.btn-primary:disabled{ background:#555; color:#999; box-shadow:0 5px 0 #333; cursor:not-allowed; }
+
+.btn-secondary{
+  background: var(--purple); color: var(--cream);
+  box-shadow: 0 5px 0 #2e2748;
+  margin-top: 12px; font-size: 12px;
+}
+.btn-secondary:active{ transform: translateY(4px); box-shadow: 0 1px 0 #2e2748; }
+
+.btn-floating{ margin-top: 32px; max-width: 320px; }
+
+/* ---------- STORY / DIALOG (JRPG textbox style) ---------- */
+#screen-story{ justify-content: flex-end; padding-bottom: 40px; background: var(--navy-deep); }
+.dialog-box{
+  width:100%; max-width: 480px;
+  background: var(--navy);
+  border: 4px solid var(--cream);
+  box-shadow: 0 0 0 4px var(--navy-deep);
+  display:flex; gap:14px; padding:16px;
+}
+.dialog-portrait{
+  flex-shrink:0; width:64px; height:64px; background: var(--purple);
+  border: 3px solid var(--gold);
+  display:flex; align-items:center; justify-content:center; font-size:30px;
+}
+.dialog-textwrap{ flex:1; text-align:left; }
+.dialog-phase-label{ font-size:10px; color: var(--gold); margin-bottom:6px; }
+.dialog-title{ font-size:14px; color: var(--pink); margin-bottom:10px; line-height:1.5; }
+.dialog-text{ font-size:20px; color: var(--cream); line-height:1.35; }
+
+/* ---------- GAME SCREEN ---------- */
+#screen-game{ padding:0; }
+.hud{
+  position:absolute; top:0; left:0; right:0; z-index:5;
+  display:flex; justify-content:space-between; align-items:center;
+  background: var(--navy); border-bottom:4px solid var(--gold);
+  padding:10px 14px; font-family:'Press Start 2P', monospace; font-size:11px; color:var(--cream);
+}
+#gameCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; background: #10101f; touch-action:none; }
+
+/* ---------- CHOICE SCREEN ---------- */
+.choice-row{ display:flex; gap:16px; margin-top:10px; }
+.choice-card{
+  flex:1; background:var(--navy-deep); border:4px solid var(--purple-light);
+  padding:24px 8px; cursor:pointer; color:var(--cream);
+}
+.choice-card.boy:active, .choice-card.boy.selected{ border-color: var(--cyan); background: #16303a; }
+.choice-card.girl:active, .choice-card.girl.selected{ border-color: var(--pink); background: #35223a; }
+.choice-emoji{ font-size:40px; margin-bottom:10px; }
+.choice-name{ font-size:12px; }
+
+/* ---------- RESULT SCREEN ---------- */
+.result-photo{
+  width:80px; height:80px; margin:0 auto 12px; border:4px solid var(--gold);
+  background:var(--purple); overflow:hidden;
+}
+.result-photo img{ width:100%; height:100%; object-fit:cover; }
+.result-name{ font-size:22px; color:var(--cyan); margin-bottom:16px; }
+.result-score-label{ font-size:11px; color:var(--purple-light); margin-bottom:8px; }
+.result-score{ font-family:'Press Start 2P',monospace; font-size:36px; color:var(--gold); margin-bottom:12px; }
+.result-guess{ font-size:20px; color:var(--pink); margin-bottom:6px; }
+
+/* ---------- LEADERBOARD ---------- */
+.leaderboard-list{ max-height:50vh; overflow-y:auto; text-align:left; margin-bottom:16px; }
+.lb-row{
+  display:flex; align-items:center; gap:10px; padding:8px 6px;
+  border-bottom: 2px dashed var(--purple);
+  font-size:20px;
+}
+.lb-rank{ width:32px; color:var(--gold); font-family:'Press Start 2P',monospace; font-size:11px; }
+.lb-photo{ width:36px; height:36px; border:2px solid var(--purple-light); overflow:hidden; flex-shrink:0; }
+.lb-photo img{ width:100%; height:100%; object-fit:cover; }
+.lb-name{ flex:1; color:var(--cream); }
+.lb-score{ color:var(--cyan); font-family:'Press Start 2P',monospace; font-size:11px; }
+.lb-correct{ font-size:16px; }
+
+@media (max-width: 380px){
+  .pixel-title{ font-size:13px; }
+  .btn-primary, .btn-secondary{ font-size:11px; }
+}

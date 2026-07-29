@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Karina & Junior - A Aventura do Baby Chá</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- BOOT SCREEN -->
+<div id="screen-boot" class="screen active">
+  <div class="boot-wrap">
+    <div class="boot-logo">K&J</div>
+    <div class="boot-title">A AVENTURA DO<br>BABY CHÁ</div>
+    <div class="boot-blink">TOQUE PARA COMEÇAR</div>
+    <div class="boot-foot">STARRING KARINA &amp; JUNIOR</div>
+  </div>
+</div>
+
+<!-- REGISTER SCREEN -->
+<div id="screen-register" class="screen">
+  <div class="panel">
+    <h2 class="pixel-title small">CRIE SEU HERÓI</h2>
+    <p class="body-text">Antes da aventura, diga quem é você!</p>
+
+    <label class="field-label">SEU NOME</label>
+    <input type="text" id="input-name" maxlength="20" placeholder="Digite seu nome" class="pixel-input">
+
+    <label class="field-label">SUA FOTO</label>
+    <div class="photo-row">
+      <div class="photo-preview" id="photo-preview">?</div>
+      <label class="btn-secondary" for="input-photo">TIRAR / ESCOLHER FOTO</label>
+      <input type="file" id="input-photo" accept="image/*" capture="environment" style="display:none">
+    </div>
+
+    <button id="btn-start-game" class="btn-primary" disabled>COMEÇAR JORNADA</button>
+    <p class="hint-text" id="register-hint">Preencha nome e foto para continuar</p>
+  </div>
+</div>
+
+<!-- STORY / DIALOG SCREEN (shown before each phase) -->
+<div id="screen-story" class="screen">
+  <div class="dialog-box">
+    <div class="dialog-portrait" id="story-portrait">💕</div>
+    <div class="dialog-textwrap">
+      <div class="dialog-phase-label" id="story-phase-label">FASE 1</div>
+      <div class="dialog-title" id="story-title">TÍTULO</div>
+      <div class="dialog-text" id="story-text">Texto da história aqui...</div>
+    </div>
+  </div>
+  <button id="btn-story-continue" class="btn-primary btn-floating">▶ COMEÇAR FASE</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="screen-game" class="screen">
+  <div class="hud">
+    <div class="hud-item">FASE <span id="hud-phase">1</span>/8</div>
+    <div class="hud-item" id="hud-instructions">Toque nos alvos!</div>
+    <div class="hud-item">PONTOS <span id="hud-score">0</span></div>
+  </div>
+  <canvas id="gameCanvas"></canvas>
+</div>
+
+<!-- BOY OR GIRL CHOICE SCREEN -->
+<div id="screen-choice" class="screen">
+  <div class="panel">
+    <h2 class="pixel-title small">A GRANDE PERGUNTA</h2>
+    <p class="body-text">É menino ou menina? Faça sua aposta final!</p>
+    <div class="choice-row">
+      <button class="choice-card boy" id="choice-boy">
+        <div class="choice-emoji">🩵</div>
+        <div class="choice-name">TIMOTHY</div>
+      </button>
+      <button class="choice-card girl" id="choice-girl">
+        <div class="choice-emoji">💜</div>
+        <div class="choice-name">LUNA</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="screen-result" class="screen">
+  <div class="panel">
+    <h2 class="pixel-title small">FIM DE JOGO</h2>
+    <div class="result-photo" id="result-photo"></div>
+    <div class="result-name" id="result-name">JOGADOR</div>
+    <div class="result-score-label">PONTUAÇÃO FINAL</div>
+    <div class="result-score" id="result-score">000</div>
+    <div class="result-guess" id="result-guess"></div>
+    <p class="hint-text" id="result-status">Enviando para o ranking...</p>
+    <button id="btn-view-rank" class="btn-primary" style="display:none">VER RANKING</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD SCREEN -->
+<div id="screen-leaderboard" class="screen">
+  <div class="panel wide">
+    <h2 class="pixel-title small">RANKING GERAL</h2>
+    <div id="leaderboard-list" class="leaderboard-list">
+      <p class="hint-text">Carregando...</p>
+    </div>
+    <button id="btn-back-result" class="btn-secondary">FECHAR</button>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN (?admin=1) -->
+<div id="screen-admin" class="screen">
+  <div class="panel wide">
+    <h2 class="pixel-title small">PAINEL DO ANFITRIÃO</h2>
+    <p class="body-text">Defina o sexo real do bebê para revelar os acertos:</p>
+    <div class="choice-row">
+      <button class="choice-card boy" id="admin-set-boy">
+        <div class="choice-emoji">🩵</div><div class="choice-name">É TIMOTHY</div>
+      </button>
+      <button class="choice-card girl" id="admin-set-girl">
+        <div class="choice-emoji">💜</div><div class="choice-name">É LUNA</div>
+      </button>
+    </div>
+    <p class="hint-text" id="admin-status"></p>
+    <button id="admin-view-rank" class="btn-primary">ABRIR RANKING</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
