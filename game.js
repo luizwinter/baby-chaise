@@ -231,10 +231,10 @@ function runPhase1(done){
       if (!b.alive) return;
       b.bob += dt*0.003;
       const yOff = Math.sin(b.bob)*4;
-      ctx.fillStyle = b.correct ? '#2e4a3a' : '#3a2e4a';
+      ctx.fillStyle = '#2a2a45';
       roundRect(ctx, b.x, b.y+yOff, b.w, b.h, 8);
       ctx.fill();
-      ctx.strokeStyle = b.correct ? '#4ecdc4' : '#ff6b9d';
+      ctx.strokeStyle = '#6c5b9e';
       ctx.lineWidth = 3;
       ctx.stroke();
       ctx.fillStyle = '#f4f1de';
@@ -476,7 +476,7 @@ function runPhase4(done){
   const lanes = 3;
   const laneW = () => canvas.width / lanes;
   let bikeLane = 1;
-  let timeLeft = 60000;
+  let timeLeft = 20000;
   let items = [];
   let spawnTimer = 0;
   let flashTimer = 0;
@@ -577,7 +577,9 @@ function runPhase5(done){
     let type = r < 0.72 ? 'cliente' : (r < 0.9 ? 'barbara' : 'arao');
     const x = 50 + Math.random()*(canvas.width-100);
     const y = 80 + Math.random()*(canvas.height-200);
-    slots.push({ type, x, y, patience: type==='barbara' ? 1800 : 2400, max: type==='barbara'?1800:2400 });
+    // Bárbara não expira sozinha: só some quando tocada. Arão e cliente têm paciência normal.
+    const patience = type === 'barbara' ? Infinity : 2400;
+    slots.push({ type, x, y, patience, max: 2400 });
   }
 
   let last = performance.now(), raf;
@@ -593,13 +595,16 @@ function runPhase5(done){
       s.patience -= dt;
       const key = s.type === 'cliente' ? 'sprite_cliente' : (s.type === 'barbara' ? 'sprite_barbara' : 'sprite_arao');
       drawSprite(key, s.x, s.y, 68);
-      const pct = Math.max(0, s.patience/s.max);
-      ctx.fillStyle = '#0f0f1e';
-      ctx.fillRect(s.x-30, s.y+28, 60, 6);
-      ctx.fillStyle = pct > 0.3 ? '#4ecdc4' : '#e63946';
-      ctx.fillRect(s.x-30, s.y+28, 60*pct, 6);
-      if (s.patience <= 0){
-        if (s.type === 'barbara') addScore(-12);
+      // barra de paciência: só o cliente tem (Bárbara e Arão são só visuais/sem contagem)
+      if (s.type === 'cliente'){
+        const pct = Math.max(0, s.patience/s.max);
+        ctx.fillStyle = '#0f0f1e';
+        ctx.fillRect(s.x-30, s.y+28, 60, 6);
+        ctx.fillStyle = pct > 0.3 ? '#4ecdc4' : '#e63946';
+        ctx.fillRect(s.x-30, s.y+28, 60*pct, 6);
+      }
+      // Bárbara nunca expira sozinha (patience=Infinity); cliente e Arão saem se não forem tocados a tempo
+      if (s.type !== 'barbara' && s.patience <= 0){
         return false;
       }
       return true;
@@ -628,7 +633,7 @@ function runPhase5(done){
     const s = slots[i];
     const toRemove = new Set([i]);
     if (s.type === 'cliente') addScore(12);
-    else if (s.type === 'barbara') addScore(4); // tocou a tempo, evita o desconto maior
+    else if (s.type === 'barbara') addScore(4); // tocou a Bárbara antes que ela atrapalhasse
     else if (s.type === 'arao'){
       addScore(8);
       const clienteIdx = slots.findIndex(c=>c.type==='cliente');
