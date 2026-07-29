@@ -121,6 +121,21 @@ img, canvas{ image-rendering: pixelated; image-rendering: crisp-edges; }
 
 .btn-floating{ margin-top: 32px; max-width: 320px; }
 
+/* ---------- ADMIN: zona de risco e avisos ---------- */
+.admin-danger-zone{
+  margin-top: 36px; padding-top: 20px;
+  border-top: 2px dashed #6c5b9e;
+}
+.btn-danger{
+  display:inline-block; width:100%; margin-top:10px;
+  font-family:'Press Start 2P', monospace; font-size:11px; letter-spacing:0.5px;
+  padding:14px 10px; cursor:pointer; border:none; text-align:center;
+  background:#e63946; color:#fff4f4;
+  box-shadow: 0 5px 0 #8f1f28;
+}
+.btn-danger:active{ transform: translateY(4px); box-shadow: 0 1px 0 #8f1f28; }
+.warning-text{ color:#ffd460; background:rgba(230,57,70,0.15); padding:10px; border:2px solid #e63946; }
+
 /* ---------- STORY / DIALOG (JRPG textbox style) ---------- */
 #screen-story{ justify-content: flex-end; padding-bottom: 40px; background: var(--navy-deep); }
 .dialog-box{
